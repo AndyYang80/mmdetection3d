@@ -127,6 +127,8 @@ class AnchorTrainMixin(object):
                       list) and (not isinstance(anchors, list)):
             feat_size = anchors.size(0) * anchors.size(1) * anchors.size(2)
             rot_angles = anchors.size(-2)
+            # print(anchors)
+            print(self.bbox_assigner)
             assert len(self.bbox_assigner) == anchors.size(-3)
             (total_labels, total_label_weights, total_bbox_targets,
              total_bbox_weights, total_dir_targets, total_dir_weights,

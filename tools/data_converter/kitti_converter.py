@@ -192,7 +192,7 @@ def create_kitti_info_file(data_path,
         with_plane=with_plane,
         image_ids=train_img_ids,
         relative_path=relative_path)
-    _calculate_num_points_in_gt(data_path, kitti_infos_train, relative_path)
+    # _calculate_num_points_in_gt(data_path, kitti_infos_train, relative_path)
     filename = save_path / f'{pkl_prefix}_infos_train.pkl'
     print(f'Kitti info train file is saved to {filename}')
     mmcv.dump(kitti_infos_train, filename)
@@ -204,7 +204,7 @@ def create_kitti_info_file(data_path,
         with_plane=with_plane,
         image_ids=val_img_ids,
         relative_path=relative_path)
-    _calculate_num_points_in_gt(data_path, kitti_infos_val, relative_path)
+    # _calculate_num_points_in_gt(data_path, kitti_infos_val, relative_path)
     filename = save_path / f'{pkl_prefix}_infos_val.pkl'
     print(f'Kitti info val file is saved to {filename}')
     mmcv.dump(kitti_infos_val, filename)
@@ -340,19 +340,19 @@ def _create_reduced_point_cloud(data_path,
             P2 = calib[f'P{str(front_camera_id)}']
         Trv2c = calib['Tr_velo_to_cam']
         # first remove z < 0 points
-        # keep = points_v[:, -1] > 0
-        # points_v = points_v[keep]
+        keep = points_v[:, -1] > 0
+        points_v = points_v[keep]
         # then remove outside.
-        if back:
-            points_v[:, 0] = -points_v[:, 0]
-        points_v = box_np_ops.remove_outside_points(points_v, rect, Trv2c, P2,
-                                                    image_info['image_shape'])
+        # if back:
+        #     points_v[:, 0] = -points_v[:, 0]
+        # points_v = box_np_ops.remove_outside_points(points_v, rect, Trv2c, P2,
+        #                                             image_info['image_shape'])
         if save_path is None:
             save_dir = v_path.parent.parent / (v_path.parent.stem + '_reduced')
             if not save_dir.exists():
                 save_dir.mkdir()
             save_filename = save_dir / v_path.name
-            # save_filename = str(v_path) + '_reduced'
+            save_filename = str(v_path) + '_reduced'
             if back:
                 save_filename += '_back'
         else:
@@ -529,7 +529,8 @@ def get_2d_boxes(info, occluded, mono3d=True):
                                     True).T[:, :2].tolist()
 
         # Keep only corners that fall within the image.
-        final_coords = post_process_coords(corner_coords)
+        # final_coords = post_process_coords(corner_coords)
+        final_coords = None
 
         # Skip if the convex hull of the re-projected corners
         # does not intersect the image canvas.

@@ -120,8 +120,11 @@ class DataBaseSampler(object):
         # load data base infos
         if hasattr(self.file_client, 'get_local_path'):
             with self.file_client.get_local_path(info_path) as local_path:
+                print(local_path)
                 # loading data from a file-like object needs file format
-                db_infos = mmcv.load(open(local_path, 'rb'), file_format='pkl')
+                # db_infos = mmcv.load(open(local_path, 'rb'), file_format='pkl')
+                db_infos = mmcv.load(open('data/kitti_custom/kitti_dbinfos_train.pkl', 'rb'), file_format='pkl')
+                
         else:
             warnings.warn(
                 'The used MMCV version does not have get_local_path. '
@@ -130,18 +133,24 @@ class DataBaseSampler(object):
                 'Please use MMCV>= 1.3.16 if you meet errors.')
             db_infos = mmcv.load(info_path)
 
-        # filter database infos
+        # print("start")
+        # print(db_infos)
+        # print("end")
         from mmdet3d.utils import get_root_logger
         logger = get_root_logger()
         for k, v in db_infos.items():
             logger.info(f'load {len(v)} {k} database infos')
+        
+        print(prepare)
         for prep_func, val in prepare.items():
             db_infos = getattr(self, prep_func)(db_infos, val)
         logger.info('After filter database:')
         for k, v in db_infos.items():
             logger.info(f'load {len(v)} {k} database infos')
 
+        # print(db_infos)
         self.db_infos = db_infos
+        
 
         # load sample groups
         # TODO: more elegant way to load sample groups
@@ -160,6 +169,7 @@ class DataBaseSampler(object):
         for k, v in self.group_db_infos.items():
             self.sampler_dict[k] = BatchSampler(v, k, shuffle=True)
         # TODO: No group_sampling currently
+        print(self.sampler_dict)
 
     @staticmethod
     def filter_by_difficulty(db_infos, removed_difficulty):

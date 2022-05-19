@@ -52,7 +52,8 @@ class KittiDataset(Custom3DDataset):
             filter invalid predicted boxes.
             Default: [0, -40, -3, 70.4, 40, 0.0].
     """
-    CLASSES = ('car', 'pedestrian', 'cyclist')
+    # CLASSES = ('car', 'pedestrian', 'cyclist')
+    CLASSES = ('car', 'human')
 
     def __init__(self,
                  data_root,
@@ -94,7 +95,7 @@ class KittiDataset(Custom3DDataset):
             str: Name of the point cloud file.
         """
         pts_filename = osp.join(self.root_split, self.pts_prefix,
-                                f'{idx:06d}.bin')
+                                f'{idx:04d}.bin')
         return pts_filename
 
     def get_data_info(self, index):
@@ -124,7 +125,8 @@ class KittiDataset(Custom3DDataset):
         rect = info['calib']['R0_rect'].astype(np.float32)
         Trv2c = info['calib']['Tr_velo_to_cam'].astype(np.float32)
         P2 = info['calib']['P2'].astype(np.float32)
-        lidar2img = P2 @ rect @ Trv2c
+        # lidar2img = P2 @ rect @ Trv2c
+        lidar2img = np.identity(4)
 
         pts_filename = self._get_pts_filename(sample_idx)
         input_dict = dict(
@@ -193,8 +195,11 @@ class KittiDataset(Custom3DDataset):
                                       axis=1).astype(np.float32)
 
         # convert gt_bboxes_3d to velodyne coordinates
+        # gt_bboxes_3d = CameraInstance3DBoxes(gt_bboxes_3d).convert_to(
+        #     self.box_mode_3d, np.linalg.inv(rect @ Trv2c))
+
         gt_bboxes_3d = CameraInstance3DBoxes(gt_bboxes_3d).convert_to(
-            self.box_mode_3d, np.linalg.inv(rect @ Trv2c))
+            self.box_mode_3d, np.identity(3))
         gt_bboxes = annos['bbox']
 
         selected = self.drop_arrays_by_name(gt_names, ['DontCare'])
@@ -474,7 +479,7 @@ class KittiDataset(Custom3DDataset):
                 annos.append(anno)
 
             if submission_prefix is not None:
-                curr_file = f'{submission_prefix}/{sample_idx:06d}.txt'
+                curr_file = f'{submission_prefix}/{sample_idx:04d}.txt'
                 with open(curr_file, 'w') as f:
                     bbox = anno['bbox']
                     loc = anno['location']
@@ -596,7 +601,7 @@ class KittiDataset(Custom3DDataset):
             print(f'Saving KITTI submission to {submission_prefix}')
             for i, anno in enumerate(det_annos):
                 sample_idx = self.data_infos[i]['image']['image_idx']
-                cur_det_file = f'{submission_prefix}/{sample_idx:06d}.txt'
+                cur_det_file = f'{submission_prefix}/{sample_idx:04d}.txt'
                 with open(cur_det_file, 'w') as f:
                     bbox = anno['bbox']
                     loc = anno['location']

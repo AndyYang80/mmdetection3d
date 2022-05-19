@@ -12,9 +12,9 @@ from skimage import io
 
 def get_image_index_str(img_idx, use_prefix_id=False):
     if use_prefix_id:
-        return '{:07d}'.format(img_idx)
+        return '{:04d}'.format(img_idx)
     else:
-        return '{:06d}'.format(img_idx)
+        return '{:04d}'.format(img_idx)
 
 
 def get_kitti_info_path(idx,
@@ -28,6 +28,7 @@ def get_kitti_info_path(idx,
     img_idx_str = get_image_index_str(idx, use_prefix_id)
     img_idx_str += file_tail
     prefix = Path(prefix)
+
     if training:
         file_path = Path('training') / info_type / img_idx_str
     else:

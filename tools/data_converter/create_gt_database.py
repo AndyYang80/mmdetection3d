@@ -216,6 +216,7 @@ def create_groundtruth_database(dataset_class_name,
                     file_client_args=file_client_args)
             ])
 
+    print(dataset_cfg)
     dataset = build_dataset(dataset_cfg)
 
     if database_save_path is None:
