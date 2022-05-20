@@ -340,19 +340,19 @@ def _create_reduced_point_cloud(data_path,
             P2 = calib[f'P{str(front_camera_id)}']
         Trv2c = calib['Tr_velo_to_cam']
         # first remove z < 0 points
-        keep = points_v[:, -1] > 0
-        points_v = points_v[keep]
+        # keep = points_v[:, -1] > 0
+        # points_v = points_v[keep]
         # then remove outside.
-        # if back:
-        #     points_v[:, 0] = -points_v[:, 0]
-        # points_v = box_np_ops.remove_outside_points(points_v, rect, Trv2c, P2,
-        #                                             image_info['image_shape'])
+        if back:
+            points_v[:, 0] = -points_v[:, 0]
+        points_v = box_np_ops.remove_outside_points(points_v, rect, Trv2c, P2,
+                                                  image_info['image_shape'])
         if save_path is None:
             save_dir = v_path.parent.parent / (v_path.parent.stem + '_reduced')
             if not save_dir.exists():
                 save_dir.mkdir()
             save_filename = save_dir / v_path.name
-            save_filename = str(v_path) + '_reduced'
+            # save_filename = str(v_path) + '_reduced'
             if back:
                 save_filename += '_back'
         else:
